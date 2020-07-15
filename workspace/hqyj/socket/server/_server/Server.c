@@ -1,5 +1,5 @@
 /*************************************************************************
-    > File Name: server.c
+    > File Name: Server.c
     > Author: lm1107
     > Mail: cdwjlm@163.com 
     > Created Time: 2020年07月14日 星期二 23时42分34秒
@@ -16,13 +16,14 @@
 
 #define N 128
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{
 	if(argc<3)
 	{
 		printf("Usage : %s <ip><port>\n",argv[0]);
 		exit(-1);
 	}
-
+	
 	struct sockaddr_in servaddr;
 
 	//建立socket连接
