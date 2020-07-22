@@ -2,33 +2,26 @@
 
 void handler(int connfd)
 {
-    char cmd[BUF_SIZE] = {0};
+    char cmd[N] = {0};
     char filename[N] = {0};
-    int ret = read(connfd,cmd,sizeof(cmd));
+    int ret = recvMsg(connfd,cmd,N);
+    printf("recv : %s\n",cmd);
     if(ret < 0)
     {    
         perror("failed to read cmd");
         return;
     }
     sscanf(cmd,"%*s%s",filename);
-#if 1
+
     if(strncmp(cmd,"upload",6)==0)
     {
         upload(connfd,filename);
-    }else{
+    }else if(strncmp(cmd,"download",8)==0)
+	{
+		download(connfd,filename);
+	}else{
         return;
     }
-#else
-    if(strncmp(cmd,"download",8)==0)
-    {
-        download(connfd,filename);
-    }else if(strncmp(cmd,"upload",6)==0)
-    {
-        upload(connfd,filename);
-    }else{
-        return;
-    }
-#endif
     return;
 }
 
@@ -75,7 +68,10 @@ int Accept(int listenfd)
 	return connfd;
 }
 
-//内部函数
+/*进行一次读取
+**返回值：实际读取的值
+**注意：非全部读取，仅仅是一次！
+*/
 int recvMsg(int connfd,char *buf,int length)
 {
 	int ret = 0;
@@ -112,8 +108,6 @@ int sendMsg(int connfd,char *buf,int length)
 	return size;
 }
 
-//int download(int connfd,char *filename);
-
 int upload(int connfd,char *filename)
 {
     char file_len[16] = {0};//文件长度
@@ -137,6 +131,8 @@ int upload(int connfd,char *filename)
     
     transFile(connfd,ffd,size);
 
+	close(ffd);
+
     return 0;
 }
 
@@ -156,4 +152,45 @@ int transFile(int connfd,int ffd,int length)
         size += ret;
     }
     return size;
+}
+
+int download(int connfd,char *filename)
+{
+    printf("filename:%s\n",filename);
+	char buf[BUF_SIZE] = {0};
+    char file_info[BUF_SIZE] = {0};
+
+    char file_name[N] = {0};
+    strcpy(file_name,filename);
+
+    int fd = open(file_name,O_RDONLY);
+    if(fd == -1)
+    {
+        printf("open [%s] failed\n",file_name);
+        return -1;
+    }
+    int len = lseek(fd,0,SEEK_END);
+    lseek(fd,0,SEEK_SET);
+    sprintf(file_info,"%d",len);
+    strcpy(file_info+16,file_name);
+
+    sendMsg(connfd,file_info,144);
+
+    while(1)
+    {
+        bzero(buf,sizeof(buf));
+        //读取数据
+        
+        int ret = read(fd,buf,sizeof(buf));
+        
+        sendMsg(connfd,buf,ret);
+
+        if(ret == 0)
+        {
+            printf("send file[%s] succeed!!!!", file_name);
+            break;
+        }
+    }
+    close(fd);
+    return 0;
 }

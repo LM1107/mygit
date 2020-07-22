@@ -34,9 +34,9 @@ int recvMsg(int connfd,char *buf,int length)
 			perror("\n[recv_%s] recv file failed\n");
 			exit(-1);
 		}
-		if(ret == 0)
-			return size;
 		size += ret;
+		if(ret < length)
+			return size;
 	}
 	return size;
 }
@@ -50,7 +50,7 @@ int sendMsg(int connfd,char *buf,int length)
 		ret = write(connfd, buf+size, length-size);
 		if(ret < 0)
 		{
-			perror("write");
+			perror("recv");
 			exit(-1);
 		}
         size += ret;
@@ -60,7 +60,11 @@ int sendMsg(int connfd,char *buf,int length)
 
 int handler(int connfd,char *buf)
 {    
-    if(0 == strcmp("help", buf) )
+    char temp[N] = {0};
+    strcpy(temp,buf);
+    sendMsg(connfd,temp,N);
+
+    if(0 == strcmp("help", temp) )
     {
         printf("*********************************************\n");
         printf("* help                             #show help\n");
@@ -71,44 +75,38 @@ int handler(int connfd,char *buf)
         printf("*********************************************\n");
     }
     else
-    if(0 == strcmp("show", buf) )
-        sendMsg(connfd,buf,N);
+    if(0 == strcmp("show", temp) )
+    {
+            return 0;
+    }
     else
-    if(0 == strncmp("upload", buf,6) )
-    {    
-        upload(connfd,buf);
+    if(0 == strncmp("upload", temp,6) )
+    {  
+        upload(connfd,temp);
         return 0;
     }
     else
-    if(0 == strncmp("download", buf,8) )
-        sendMsg(connfd,buf,N);
+    if(0 == strncmp("download", temp,8) )
+    {   
+        download(connfd,temp);
+        return 0;    
+    }
     else
-    if(0 == strcmp("quit",buf))
+    if(0 == strcmp("quit",temp))
         return 1;
     else
         printf("CMD ERR!!!, try help!!!\n");
 }
-/*
-int download(int connfd,char *filename)
-{
 
-}
-*/
 int upload(int connfd,char *temp)
 {
     char buf[BUF_SIZE] = {0};
-    strcpy(buf,temp);
-
-    write(connfd,buf,sizeof(buf));
-
     char file_info[BUF_SIZE] = {0};
     char file_name[N] = {0};
-    char file_path[N] = {0};
 
-    sscanf(buf,"%*s%s",file_path);
+    sscanf(temp,"%*s%s",file_name);
 
-    strncpy(file_name,basename(file_path),sizeof(file_path));
-    int fd = open(file_path,O_RDONLY);
+    int fd = open(file_name,O_RDONLY);
     if(fd == -1)
     {
         printf("open [%s] failed",file_name);
@@ -140,3 +138,49 @@ int upload(int connfd,char *temp)
     return 0;
 }
 
+int download(int connfd,char *temp)
+{
+    char file_len[16] = {0};//文件长度
+	char file_name[128] = {0};//文件名称
+	char buf[1024] = {0};//数据缓冲区
+
+    recvMsg(connfd,buf,144);
+
+    strncpy(file_len, buf, sizeof(file_len));//取出文件大小
+	strncpy(file_name, buf+sizeof(file_len), sizeof(file_name));//取出文件名称
+		
+	printf("ready receive!!!! file name:[%s] file size:[%s] \n",file_name, file_len);
+
+    //新的文件名
+	sprintf(buf, "%s", file_name);
+    
+    int ffd = open(buf, O_WRONLY | O_CREAT, 0666);
+		
+	int size = atoi(file_len);//文件大小
+	int write_len = 0;//记录已写入的字节数
+    
+    transFile(connfd,ffd,size);
+
+    close(ffd);
+
+    return 0;
+    
+}
+
+int transFile(int connfd,int ffd,int length)
+{
+    char buf[BUF_SIZE] = {0};
+    int ret = 0;
+    int size = 0;
+    while(size<length)
+    {
+        ret = recvMsg(connfd,buf,BUF_SIZE);
+        if(ret < 0)
+            PERROR("recvMsg")
+        //写入新建的文件
+        sendMsg(ffd,buf,ret);
+
+        size += ret;
+    }
+    return size;
+}

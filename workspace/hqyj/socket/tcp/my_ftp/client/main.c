@@ -2,7 +2,7 @@
 
 int main()
 {
-    int connfd = TcpServerInit("127.0.0.1",12340);
+    int connfd = TcpServerInit("127.0.0.1",12345);
 
     printf("Connect success\n");
 

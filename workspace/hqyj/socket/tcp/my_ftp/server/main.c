@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[])
 {
-	int listenfd = TcpServerInit("0.0.0.0",12340,10);
+	int listenfd = TcpServerInit("0.0.0.0",12345,10);
 	printf("server is running\n");
 
 	while(1)

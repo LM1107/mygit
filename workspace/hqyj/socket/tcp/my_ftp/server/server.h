@@ -29,7 +29,7 @@ int Accept(int listenfd);
 
 //内部函数
 int sendMsg(int connfd,char *buf,int length);
-int download(int connfd,char *filename);
+int download(int connfd,char *temp);
 int upload(int connfd,char *filename);   
 int transFile(int connfd,int ffd,int length);
 int recvMsg(int connfd,char *buf,int length);

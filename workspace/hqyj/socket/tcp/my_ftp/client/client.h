@@ -26,8 +26,9 @@ int TcpServerInit(const char *IP,int port);
 int sendMsg(int connfd,char *buf,int length);
 int recvMsg(int connfd,char *buf,int length);
 int handler(int connfd,char *temp);
-int download(int connfd,char *buf);
+int download(int connfd,char *temp);
 int upload(int connfd,char *temp);
+int transFile(int connfd,int ffd,int length);
 //void loading();
 
 #endif
