@@ -1,37 +1,11 @@
 #include "server.h"
-#include "Passwd.h"
-
-int Login(int connfd,int *t)
-{
-    char ID[NS] = {0};
-    char PW[NS] = {0};
-    char buf[NS] = {0};
-    recvMsg(connfd,ID,NS);
-    recvMsg(connfd,PW,NS);
-
-    int ret = dbInit(ID,PW);
-    if(ret == -1)
-    {
-        return -1;
-    }else if(ret != 0)
-    {
-        strcpy(buf,"correct");
-        sendMsg(connfd,buf,NS);
-        return 1;
-    }
-    (*t)++;
-    sprintf(buf,"warning:wrong!you get %d times",3-(*t));
-    sendMsg(connfd,buf,NS);
-    return 0;
-}
 
 int handler(int connfd)
 {
-    char cmd[NS] = {0};
-    char filename[NS] = {0};
-    int ret = recvMsg(connfd,cmd,NS);
+    char cmd[N] = {0};
+    char filename[N] = {0};
+    int ret = recvMsg(connfd,cmd,N);
     printf("recv : %s\n",cmd);
-
     if(ret < 0)
     {    
         perror("failed to read cmd");
@@ -40,23 +14,16 @@ int handler(int connfd)
 
     if(strncmp(cmd,"upload",6)==0)
     {
-        if(strlen(cmd)==6)
-            return 0;
         sscanf(cmd,"%*s%s",filename);
         upload(connfd,filename);
     }else if(strncmp(cmd,"download",8)==0)
 	{
-        if(strlen(cmd)==8)
-            return 0;
         sscanf(cmd,"%*s%s",filename);
 		download(connfd,filename);
-	}else if(strncmp(cmd,"show",4)==0)
-    {
-        show(connfd);
-    }else if(strncmp(cmd,"quit",4)==0)
+	}else if(strncmp(cmd,"quit",4)==0)
     {
         return 1;
-    }else
+    }
     return 0;
 }
 
@@ -154,7 +121,7 @@ int upload(int connfd,char *filename)
     strncpy(file_len, buf, sizeof(file_len));//取出文件大小
 	strncpy(file_name, buf+sizeof(file_len), sizeof(file_name));//取出文件名称
 		
-	printf("ready receive!!!! file name:[%s] file size:[%s]",file_name, file_len);
+	printf("ready receive!!!! file name:[%s] file size:[%s] \n",file_name, file_len);
 
     //新的文件名
 	sprintf(buf, "../servBackup/recv_%s", file_name);
@@ -195,7 +162,7 @@ int download(int connfd,char *filename)
 	char buf[BUF_SIZE] = {0};
     char file_info[BUF_SIZE] = {0};
 
-    char file_name[NS] = {0};
+    char file_name[N] = {0};
     sprintf(file_name, "../servBackup/%s", filename);
 
     int fd = open(file_name,O_RDONLY);
@@ -229,23 +196,4 @@ int download(int connfd,char *filename)
     }
     close(fd);
     return 0;
-}
-
-int show(int connfd)
-{
-    char buf[BUF_SIZE] = {0};
-    char temp[BUF_SIZE] = {0};
-    struct dirent *dfp;
-
-    DIR *dir = opendir("../servBackup");
-
-    while((dfp = readdir(dir))!= NULL)
-    {
-        if(strncmp(dfp->d_name,".",1)==0||strncmp(dfp->d_name,"..",2)==0)
-            continue;
-        sprintf(temp,"filename:%s\n",dfp->d_name);
-        strcpy(buf+strlen(buf),temp);
-    }
-    sendMsg(connfd,buf,BUF_SIZE);
-    printf("--show---all--\n");
 }

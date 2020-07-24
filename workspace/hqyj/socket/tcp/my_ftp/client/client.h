@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <libgen.h>
+#include <dirent.h>
 
 #define BUF_SIZE 1024
 #define N 128
@@ -29,6 +30,8 @@ int handler(int connfd,char *temp);
 int download(int connfd,char *temp);
 int upload(int connfd,char *temp);
 int transFile(int connfd,int ffd,int length);
+int show(int connfd);
+int login(int connfd,char *IDtemp,char *PWtemp);
 //void loading();
 
 #endif

@@ -13,9 +13,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <libgen.h>
+#include <dirent.h>
 
+#define NS 128
 #define BUF_SIZE 1024
-#define N 128
 
 #define PERROR(m) { \
         perror(m); \
@@ -23,7 +24,7 @@
     }
 
 //外部函数
-void handler(int connfd);
+int handler(int connfd);
 int TcpServerInit(const char *IP,int port,int backlog);
 int Accept(int listenfd);
 
@@ -33,6 +34,8 @@ int download(int connfd,char *temp);
 int upload(int connfd,char *filename);   
 int transFile(int connfd,int ffd,int length);
 int recvMsg(int connfd,char *buf,int length);
+int show(int connfd);
+int Login(int connfd,int *t);
 //加载函数
 //void loading();
 

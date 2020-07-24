@@ -58,6 +58,26 @@ int sendMsg(int connfd,char *buf,int length)
 	return size;
 }
 
+int login(int connfd,char *IDtemp,char *PWtemp)
+{
+    char ID[N] = {0};
+    char PW[N] = {0};
+    char buf[N] = {0};
+    strcpy(ID,IDtemp);
+    strcpy(PW,PWtemp);
+
+    sendMsg(connfd,ID,N);
+
+    sendMsg(connfd,PW,N);
+
+    recvMsg(connfd,buf,N);
+    printf("%s\n",buf);
+    if(strncmp(buf,"correct",7)==0)
+        return 1;
+    else
+        return 0;
+}
+
 int handler(int connfd,char *buf)
 {    
     char temp[N] = {0};
@@ -77,17 +97,22 @@ int handler(int connfd,char *buf)
     else
     if(0 == strcmp("show", temp) )
     {
-            return 0;
+        show(connfd);
+        return 0;
     }
     else
     if(0 == strncmp("upload", temp,6) )
     {  
+        if(strlen(temp)==6)
+            return -1;
         upload(connfd,temp);
         return 0;
     }
     else
     if(0 == strncmp("download", temp,8) )
     {   
+        if(strlen(temp)==8)
+            return -1;
         download(connfd,temp);
         return 0;    
     }
@@ -96,6 +121,14 @@ int handler(int connfd,char *buf)
         return 1;
     else
         printf("CMD ERR!!!, try help!!!\n");
+}
+
+int show(int connfd)
+{
+    char buf[BUF_SIZE] = {0};
+    recvMsg(connfd,buf,BUF_SIZE);\
+    printf("%s",buf);
+    printf("----end----");
 }
 
 int upload(int connfd,char *temp)
@@ -114,8 +147,11 @@ int upload(int connfd,char *temp)
     }
     int len = lseek(fd,0,SEEK_END);
     lseek(fd,0,SEEK_SET);
+
+    char filename[N] = {0};
+    strncpy(filename,basename(file_name),sizeof(file_name));
     sprintf(file_info,"%d",len);
-    strcpy(file_info+16,file_name);
+    strcpy(file_info+16,filename);
 
     write(connfd,file_info,144);
 
@@ -130,7 +166,7 @@ int upload(int connfd,char *temp)
 
         if(ret == 0)
         {
-            printf("send file[%s] succeed!!!!", file_name);
+            printf("send file[%s] succeed!!!!", filename);
             break;
         }
     }
