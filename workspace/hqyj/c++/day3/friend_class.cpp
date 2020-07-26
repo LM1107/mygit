@@ -1,10 +1,33 @@
 #include <iostream>
 using namespace std;
 
-/*  如果A把B的某个成员函数当成朋友，
-    那么B类的这个成员函数能直接访问A类的静态成员
-    通过A类对象，能访问A类的所有成员
+/*友元类
+    如果 A 将 B类当成朋友，
+    那么在 B类的所有成员函数中，
+    能直接通过 A:: 访问 A 的静态成员
+    通过 A 类对象点号，访问A类的所有成员
 */
+
+class A{
+public:
+    A(int x):x(x)
+    {
+    }
+    void prtxyz()
+    {
+        cout<<"x = "<<x<<endl;
+        cout<<"y = "<<y<<endl;
+        cout<<"z = "<<z<<endl;
+    }
+
+    friend class B;     //声明 B 是 A 的友元类
+    int z;
+private:
+    int x;
+    static int y;
+};
+
+int A::y = 13;
 
 class B{
 public:
@@ -16,21 +39,10 @@ public:
     }
 };        //声明一个不完整的 B
 
-class A{
-public:
-    A(int x):x(x)
-    {
-    }
-    friend class B;     //声明 B 是 A 的友元类
-    int z;
-private:
-    int x;
-    static int y;
-};
-
-int A::y = 13;
-
 int main()
 {
-
+    B b;
+    A a(10);
+    b.prnmasg(a);
+    a. prtxyz();
 }

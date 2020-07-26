@@ -8,7 +8,7 @@ public:
         p = new char [6];   //在堆区new开辟6个字节的数组空间
         *p = ch;            //将ch的数据存入空间
     }
-    Demo(Demo &d)           //实现浅拷贝，两个同类型的成员指向同一个兑取
+    Demo(Demo &d)           //实现深拷贝，两个同类型的成员指向同一个堆区
     {
         p = new char [6];
         *p = *d.p;

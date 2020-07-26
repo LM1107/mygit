@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-//1、const 修饰类的成员函数，const必须卸载参数列表的后面；
+//1、const 修饰类的成员函数，const必须写在参数列表的后面；
 //2、const 修饰的成员函数，表示 函数空间中所有的成员变量都是只读。
 //3、const 修饰的成员函数，不能访问类的非const成员
 
