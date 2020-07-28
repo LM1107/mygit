@@ -6,6 +6,9 @@
 #include <string.h>
 #include <sqlite3.h>
 
-int dbInit(char *ID,char *PW);
+int dbInit(sqlite3 **db);
 
+int dbSelect(char *ID,char *PW,sqlite3 *db);
+
+int dbClose(sqlite3 *db);
 #endif

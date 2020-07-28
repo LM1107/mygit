@@ -108,7 +108,6 @@ int handler(int connfd,char *buf)
         upload(connfd,temp);
         return 0;
     }
-    else
     if(0 == strncmp("download", temp,8) )
     {   
         if(strlen(temp)==8)
@@ -136,6 +135,7 @@ int upload(int connfd,char *temp)
     char buf[BUF_SIZE] = {0};
     char file_info[BUF_SIZE] = {0};
     char file_name[N] = {0};
+    char str[N] = {0};
 
     sscanf(temp,"%*s%s",file_name);
 
@@ -143,7 +143,12 @@ int upload(int connfd,char *temp)
     if(fd == -1)
     {
         printf("open [%s] failed",file_name);
+        sprintf(str,"upload wrong file");
+        sendMsg(connfd,str,N);
         return -1;
+    }else{
+        sprintf(buf,"exist such file");
+        sendMsg(connfd,buf,N);
     }
     int len = lseek(fd,0,SEEK_END);
     lseek(fd,0,SEEK_SET);

@@ -9,11 +9,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <strings.h>
 #include <pthread.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <libgen.h>
 #include <dirent.h>
+#include "Passwd.h"
 
 #define NS 128
 #define BUF_SIZE 1024
@@ -35,7 +37,9 @@ int upload(int connfd,char *filename);
 int transFile(int connfd,int ffd,int length);
 int recvMsg(int connfd,char *buf,int length);
 int show(int connfd);
-int Login(int connfd,int *t);
+char *getFile();
+int checkFile(char *file);
+int Login(int connfd,int *t,sqlite3 **db);
 //加载函数
 //void loading();
 

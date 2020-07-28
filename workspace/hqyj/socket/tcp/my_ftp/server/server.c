@@ -1,7 +1,6 @@
 #include "server.h"
-#include "Passwd.h"
 
-int Login(int connfd,int *t)
+int Login(int connfd,int *t,sqlite3 **db)
 {
     char ID[NS] = {0};
     char PW[NS] = {0};
@@ -9,7 +8,7 @@ int Login(int connfd,int *t)
     recvMsg(connfd,ID,NS);
     recvMsg(connfd,PW,NS);
 
-    int ret = dbInit(ID,PW);
+    int ret = dbSelect(ID,PW,*db);
     if(ret == -1)
     {
         return -1;
@@ -43,7 +42,16 @@ int handler(int connfd)
         if(strlen(cmd)==6)
             return 0;
         sscanf(cmd,"%*s%s",filename);
-        upload(connfd,filename);
+        bzero(cmd,NS);
+        recvMsg(connfd,cmd,NS);
+        if(strncmp(cmd,"upload wrong",12)==0)
+        {
+            printf("%s\n",cmd);
+            return 0;
+        }else{
+            printf("%s\n",cmd);
+            upload(connfd,filename);
+        }
     }else if(strncmp(cmd,"download",8)==0)
 	{
         if(strlen(cmd)==8)
@@ -154,7 +162,7 @@ int upload(int connfd,char *filename)
     strncpy(file_len, buf, sizeof(file_len));//取出文件大小
 	strncpy(file_name, buf+sizeof(file_len), sizeof(file_name));//取出文件名称
 		
-	printf("ready receive!!!! file name:[%s] file size:[%s]",file_name, file_len);
+	printf("ready receive!!!! file name:[%s] file size:[%s]\n",file_name, file_len);
 
     //新的文件名
 	sprintf(buf, "../servBackup/recv_%s", file_name);
@@ -233,7 +241,18 @@ int download(int connfd,char *filename)
 
 int show(int connfd)
 {
+    char *ptr = getFile();
     char buf[BUF_SIZE] = {0};
+    strcpy(buf,ptr);
+    sendMsg(connfd,buf,BUF_SIZE);
+    printf("--show---all--\n");
+    free(ptr);
+}
+
+char *getFile()
+{
+    char *buf = (char *)malloc(BUF_SIZE);
+    bzero(buf,BUF_SIZE);
     char temp[BUF_SIZE] = {0};
     struct dirent *dfp;
 
@@ -246,6 +265,22 @@ int show(int connfd)
         sprintf(temp,"filename:%s\n",dfp->d_name);
         strcpy(buf+strlen(buf),temp);
     }
-    sendMsg(connfd,buf,BUF_SIZE);
-    printf("--show---all--\n");
+    return buf;
+}
+
+int checkFile(char *file)
+{
+    char *ptr = getFile();
+    char buf[BUF_SIZE] = {0};
+    strcpy(buf,ptr);
+    char *p;
+    p = strstr(buf,file);
+    if(p==NULL)
+    {
+        free(ptr);
+        return -1;
+    }else{
+        free(ptr);
+        return 0;
+    }
 }

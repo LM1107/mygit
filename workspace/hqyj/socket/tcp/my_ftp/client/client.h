@@ -32,6 +32,7 @@ int upload(int connfd,char *temp);
 int transFile(int connfd,int ffd,int length);
 int show(int connfd);
 int login(int connfd,char *IDtemp,char *PWtemp);
+int checkFile(char *file);
 //void loading();
 
 #endif
