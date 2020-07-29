@@ -7,6 +7,12 @@ class Person{
 
 class Demo{
     int m_Age;
+    short c;    //满足字节序对齐
+    char a;
+public:
+    void prnf() const{
+        cout << "Heloo" << endl;
+    }
 };
 
 void test01()
