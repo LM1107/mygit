@@ -16,6 +16,7 @@
 #include <libgen.h>
 #include <dirent.h>
 #include "Passwd.h"
+#include "pool.h"
 
 #define NS 128
 #define BUF_SIZE 1024
@@ -39,7 +40,9 @@ int recvMsg(int connfd,char *buf,int length);
 int show(int connfd);
 char *getFile();
 int checkFile(char *file);
-int Login(int connfd,int *t,sqlite3 **db);
+int Login(int connfd,int *t,sqlite3 *db);
+int hhandler(int connfd,sqlite3 *db);
+int xxx(int connfd,sqlite3 *db);
 //加载函数
 //void loading();
 

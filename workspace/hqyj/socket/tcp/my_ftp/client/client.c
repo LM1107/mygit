@@ -81,6 +81,7 @@ int login(int connfd,char *IDtemp,char *PWtemp)
 int handler(int connfd,char *buf)
 {    
     char temp[N] = {0};
+    char str[N] = {0};
     strcpy(temp,buf);
     sendMsg(connfd,temp,N);
 
@@ -112,7 +113,13 @@ int handler(int connfd,char *buf)
     {   
         if(strlen(temp)==8)
             return -1;
-        download(connfd,temp);
+        recvMsg(connfd,str,N);
+        if(strncmp(str,"no such file",12)==0)
+        {
+            printf("%s",str);
+            return 0;
+        }else
+            download(connfd,temp);
         return 0;    
     }
     else

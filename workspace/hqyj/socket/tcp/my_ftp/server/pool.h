@@ -5,7 +5,10 @@
 #include <stdlib.h>  
 #include <unistd.h>  
 #include <sys/types.h>  
-#include <pthread.h>  
+#include <pthread.h> 
+#include <sqlite3.h>
+#include <assert.h>
+#include "que.h"
 
 /*线程池结构*/  
 typedef struct  
@@ -27,7 +30,7 @@ typedef struct
 
 }CThread_pool;  
 
-int pool_add_worker (void *(*process) (void *arg), void *arg);  
+int pool_add_worker (int fd,sqlite3 *db,HANDLER handler); 
 
 void *thread_routine (void *arg);  
 

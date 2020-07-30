@@ -1,6 +1,48 @@
 #include "server.h"
 
-int Login(int connfd,int *t,sqlite3 **db)
+int xxx(int connfd,sqlite3 *db)
+{
+    printf("helleo\n");
+}
+
+int hhandler(int connfd,sqlite3 *db)
+{
+    int t = 0;
+    while(1)
+    {
+        int ret = Login(connfd,&t,db);
+        if(ret == 1)
+        {
+            t = 0;
+            break;
+        }
+        if(t == 3)
+        {
+            t = 0;
+            printf("you've tried 3 times,plz reconnect\n");
+            printf("connect close\n");
+            close(connfd);
+            return -1;
+        }else{
+            continue;
+        }	
+    }
+    if(t != 3)
+    {
+        while(1)
+        {
+            int ret = handler(connfd);
+            if(ret == 1)
+            {
+                printf("connect close\n");
+                close(connfd);
+                return 0;
+            }
+        }
+    }
+}
+
+int Login(int connfd,int *t,sqlite3 *db)
 {
     char ID[NS] = {0};
     char PW[NS] = {0};
@@ -8,7 +50,7 @@ int Login(int connfd,int *t,sqlite3 **db)
     recvMsg(connfd,ID,NS);
     recvMsg(connfd,PW,NS);
 
-    int ret = dbSelect(ID,PW,*db);
+    int ret = dbSelect(ID,PW,db);
     if(ret == -1)
     {
         return -1;
@@ -57,7 +99,18 @@ int handler(int connfd)
         if(strlen(cmd)==8)
             return 0;
         sscanf(cmd,"%*s%s",filename);
-		download(connfd,filename);
+        ret = checkFile(filename);
+        if(ret == -1)
+        {
+            bzero(cmd,NS);
+            strcpy(cmd,"no such file,plz check filename");
+            sendMsg(connfd,cmd,NS);
+        }else{
+            bzero(cmd,NS);
+            sendMsg(connfd,cmd,NS);
+            printf("find %s success\n",filename);
+            download(connfd,filename);
+        }
 	}else if(strncmp(cmd,"show",4)==0)
     {
         show(connfd);
