@@ -11,7 +11,7 @@ private:
 *利用虚继承 解决菱形继承的问题
 *语法：继承之前 加上关键字 virtual 变为虚继承
 *Animal类称为 虚基类
-*vbptr需基类指针 ---> vbtable虚基类表
+*vbptr虚基类指针 ---> vbtable虚基类表
 *v-virtual b-base ptr-pointer
 *虚基类继承实质为继承指针，然后通过指针偏移来得到m_Age
 */
@@ -20,7 +20,7 @@ class sheep :virtual public animal
 
 };
 
-class camel :virtual public animal
+class camel : virtual public animal
 {
 
 };

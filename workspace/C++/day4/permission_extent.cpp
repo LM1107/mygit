@@ -44,6 +44,11 @@ public:
         x = a;
         y = b;
     }
+    void getVal()
+    {
+        cout << x << endl;
+        cout << y << endl;
+    }
 };
 
 int main()
@@ -65,5 +70,6 @@ int main()
 
     D d;
     d.setVal(10,20);
+    d.getVal();
     //cout << d.x << endl;
 }
